@@ -47,7 +47,7 @@ static const struct file_operations fops = {
 };
 
 // devnode回调函数，用于设置设备文件权限
-static char *hello_char_devnode(struct device *dev, umode_t *mode)
+static char *hello_char_devnode(const struct device *dev, umode_t *mode)
 {
     if (mode)
         *mode = 0666; // 设置权限为 rw-rw-rw-
