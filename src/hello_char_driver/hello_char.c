@@ -46,6 +46,14 @@ static const struct file_operations fops = {
     .write   = dev_write,
 };
 
+// devnode回调函数，用于设置设备文件权限
+static char *hello_char_devnode(struct device *dev, umode_t *mode)
+{
+    if (mode)
+        *mode = 0666; // 设置权限为 rw-rw-rw-
+    return NULL;
+}
+
 // --- 模块初始化函数 ---
 static int __init hello_char_init(void)
 {
@@ -79,7 +87,7 @@ static int __init hello_char_init(void)
     }
 
     // 4. 创建设备类 (class)，为自动创建设备节点做准备
-    // class_create(owner, name)
+    // class_create(name)
     hello_class = class_create(CLASS_NAME);
     if (IS_ERR(hello_class)) {
         pr_err("创建设备类失败\n");
@@ -87,6 +95,9 @@ static int __init hello_char_init(void)
         goto cleanup_cdev;
     }
     pr_info("设备类创建成功\n");
+
+    // 设置 devnode 回调以修改设备文件权限
+    hello_class->devnode = hello_char_devnode;
 
     // 5. 在刚创建的类下创建设备实例 (device)，udev会自动在/dev下创建设备文件
     // device_create(class, parent, devt, drvdata, fmt, ...)
